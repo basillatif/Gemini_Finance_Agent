@@ -25,3 +25,16 @@ print("PASS" if got == expected else f"MISMATCH: {got}")
 print(get_revenue("customer_name", "2026-07-01", "2026-09-30")["status"])  # error
 print(get_revenue("region", "2026-07-01", "2026-09-30", region="Mars")["status"])  # error
 print(get_revenue("region", "2027-01-01", "2027-03-31")["status"])  # error
+
+# Totals and period-over-period change are computed by the tool, not the model.
+assert round(result["totals"]["revenue_usd"], 2) == 8180590.74, result["totals"]
+yoy = get_revenue(
+    "region", lq["start_date"], lq["end_date"],
+    compare_start_date=cal["periods"]["same_quarter_last_year"]["start_date"],
+    compare_end_date=cal["periods"]["same_quarter_last_year"]["end_date"],
+)
+print(json.dumps(yoy["comparison"], indent=2))
+south = next(r for r in yoy["rows"] if r["region"] == "South")
+print("South YoY:", south["change"]["revenue_change_pct"])
+assert south["change"]["revenue_change_pct"] == 32.0, south["change"]
+print(get_revenue("region", "2026-07-01", "2026-09-30", compare_start_date="2025-07-01")["status"])  # error

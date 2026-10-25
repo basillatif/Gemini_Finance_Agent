@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "adk-web",
+      "runtimeExecutable": ".venv/bin/adk",
+      "runtimeArgs": ["web", "--port", "8000", "revenue_agent"],
+      "port": 8000
+    }
+  ]
+}

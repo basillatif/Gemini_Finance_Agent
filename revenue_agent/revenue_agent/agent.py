@@ -104,56 +104,20 @@ def get_reporting_calendar() -> dict:
     }
 
 
-def get_revenue(
-    group_by: str,
-    start_date: str,
-    end_date: str,
-    region: str = "",
-    product_line: str = "",
-    channel: str = "",
-) -> dict:
-    """Approved read only revenue query against the finance data warehouse.
-
-    Returns revenue, cost, gross margin, and units for a date range,
-    optionally grouped by one approved dimension and filtered.
-
-    Args:
-        group_by: One of "none", "region", "product_line", "channel",
-            "customer_segment", "month", "quarter".
-        start_date: Inclusive start date, YYYY-MM-DD.
-        end_date: Inclusive end date, YYYY-MM-DD.
-        region: Optional filter. One of West, Central, East, South. Empty for all.
-        product_line: Optional filter. One of Analytics Platform, Data Services,
-            AI Add-ons, Support Plans. Empty for all.
-        channel: Optional filter. One of Direct, Partner, Online. Empty for all.
-
-    Returns:
-        dict: status, the query parameters used, and rows with revenue_usd,
-        cost_usd, gross_margin_pct, and units. Rows are sorted by revenue
-        descending, or chronologically when grouped by month or quarter.
-    """
-    # Validate every input against the approved lists before touching BigQuery.
-    if group_by not in APPROVED_GROUP_BY:
-        return {"status": "error", "message": f"group_by must be one of {sorted(APPROVED_GROUP_BY)}."}
-    for name, value in (("start_date", start_date), ("end_date", end_date)):
+def _parse_range(start_date: str, end_date: str, prefix: str = "") -> tuple[date, date] | str:
+    """Validates a date range. Returns (start, end) or an error message."""
+    for name, value in ((f"{prefix}start_date", start_date), (f"{prefix}end_date", end_date)):
         if not DATE_RE.match(value or ""):
-            return {"status": "error", "message": f"{name} must be YYYY-MM-DD, got '{value}'."}
+            return f"{name} must be YYYY-MM-DD, got '{value}'."
     start, end = date.fromisoformat(start_date), date.fromisoformat(end_date)
     if start > end:
-        return {"status": "error", "message": "start_date must be on or before end_date."}
+        return f"{prefix}start_date must be on or before {prefix}end_date."
     if end < DATA_START or start > DATA_END:
-        return {
-            "status": "error",
-            "message": f"No data in that range. Data covers {DATA_START} to {DATA_END}.",
-        }
-    for name, value, allowed in (
-        ("region", region, APPROVED_REGIONS),
-        ("product_line", product_line, APPROVED_PRODUCTS),
-        ("channel", channel, APPROVED_CHANNELS),
-    ):
-        if value and value not in allowed:
-            return {"status": "error", "message": f"{name} must be one of {sorted(allowed)} or empty."}
+        return f"No data in {start_date} to {end_date}. Data covers {DATA_START} to {DATA_END}."
+    return start, end
 
+
+def _query(group_by: str, start: date, end: date, region: str, product_line: str, channel: str) -> list[dict]:
     dim_sql = APPROVED_GROUP_BY[group_by]
     select_dim = f"{dim_sql} AS {group_by}," if dim_sql else ""
     group_clause = "GROUP BY 1" if dim_sql else ""
@@ -188,12 +152,110 @@ def get_revenue(
         maximum_bytes_billed=MAX_BYTES_BILLED,
         labels={"app": "revenue-agent", "tool": "get-revenue"},
     )
-    rows = _bq().query(sql, job_config=job_config).result()
+    rows = [dict(r) for r in _bq().query(sql, job_config=job_config).result()]
+    # An ungrouped SUM over no matching rows comes back as one all-NULL row; drop it.
+    # Money stays Decimal here so totals add up exactly.
+    return [r for r in rows if r["revenue_usd"] is not None]
 
-    def clean(v):
-        return float(v) if isinstance(v, Decimal) else v
 
+def _totals(rows: list[dict]) -> dict:
+    revenue = sum((r["revenue_usd"] for r in rows), Decimal(0))
+    cost = sum((r["cost_usd"] for r in rows), Decimal(0))
     return {
+        "revenue_usd": revenue,
+        "cost_usd": cost,
+        "gross_margin_pct": round((revenue - cost) / revenue * 100, 1) if revenue else None,
+        "units": sum(r["units"] for r in rows),
+    }
+
+
+def _change(current: dict, prior: dict) -> dict:
+    def pct(c, p):
+        return round(Decimal(c - p) / Decimal(p) * 100, 1) if p else None
+
+    margins = (current["gross_margin_pct"], prior["gross_margin_pct"])
+    return {
+        "revenue_change_usd": current["revenue_usd"] - prior["revenue_usd"],
+        "revenue_change_pct": pct(current["revenue_usd"], prior["revenue_usd"]),
+        "cost_change_pct": pct(current["cost_usd"], prior["cost_usd"]),
+        "units_change_pct": pct(current["units"], prior["units"]),
+        "gross_margin_change_pts": None if None in margins else margins[0] - margins[1],
+    }
+
+
+def _clean(v):
+    if isinstance(v, Decimal):
+        return float(v)
+    if isinstance(v, dict):
+        return {k: _clean(x) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_clean(x) for x in v]
+    return v
+
+
+def get_revenue(
+    group_by: str,
+    start_date: str,
+    end_date: str,
+    region: str = "",
+    product_line: str = "",
+    channel: str = "",
+    compare_start_date: str = "",
+    compare_end_date: str = "",
+) -> dict:
+    """Approved read only revenue query against the finance data warehouse.
+
+    Returns revenue, cost, gross margin, and units for a date range,
+    optionally grouped by one approved dimension and filtered, plus totals.
+    Optionally compares against a second date range and returns the
+    period-over-period change, so no arithmetic is needed afterwards.
+
+    Args:
+        group_by: One of "none", "region", "product_line", "channel",
+            "customer_segment", "month", "quarter".
+        start_date: Inclusive start date, YYYY-MM-DD.
+        end_date: Inclusive end date, YYYY-MM-DD.
+        region: Optional filter. One of West, Central, East, South. Empty for all.
+        product_line: Optional filter. One of Analytics Platform, Data Services,
+            AI Add-ons, Support Plans. Empty for all.
+        channel: Optional filter. One of Direct, Partner, Online. Empty for all.
+        compare_start_date: Optional inclusive start of the comparison period,
+            YYYY-MM-DD (for example the same quarter last year). Empty for none.
+        compare_end_date: Optional inclusive end of the comparison period.
+
+    Returns:
+        dict: status, the query parameters used, rows with revenue_usd,
+        cost_usd, gross_margin_pct, and units, and totals across all rows.
+        Rows are sorted by revenue descending, or chronologically when
+        grouped by month or quarter. With a comparison period, also returns
+        comparison.totals and comparison.change (revenue_change_usd,
+        revenue_change_pct, cost_change_pct, units_change_pct,
+        gross_margin_change_pts). When grouped by region, product_line,
+        channel, or customer_segment, each row also gets prior and change.
+    """
+    # Validate every input against the approved lists before touching BigQuery.
+    if group_by not in APPROVED_GROUP_BY:
+        return {"status": "error", "message": f"group_by must be one of {sorted(APPROVED_GROUP_BY)}."}
+    current_range = _parse_range(start_date, end_date)
+    if isinstance(current_range, str):
+        return {"status": "error", "message": current_range}
+    compare_range = None
+    if compare_start_date or compare_end_date:
+        compare_range = _parse_range(compare_start_date, compare_end_date, prefix="compare_")
+        if isinstance(compare_range, str):
+            return {"status": "error", "message": compare_range}
+    for name, value, allowed in (
+        ("region", region, APPROVED_REGIONS),
+        ("product_line", product_line, APPROVED_PRODUCTS),
+        ("channel", channel, APPROVED_CHANNELS),
+    ):
+        if value and value not in allowed:
+            return {"status": "error", "message": f"{name} must be one of {sorted(allowed)} or empty."}
+
+    filters = (region, product_line, channel)
+    rows = _query(group_by, *current_range, *filters)
+    totals = _totals(rows)
+    result = {
         "status": "success",
         "query": {
             "group_by": group_by,
@@ -201,8 +263,28 @@ def get_revenue(
             "end_date": end_date,
             "filters": {k: v for k, v in (("region", region), ("product_line", product_line), ("channel", channel)) if v},
         },
-        "rows": [{k: clean(v) for k, v in dict(r).items()} for r in rows],
+        "rows": rows,
+        "totals": totals,
     }
+
+    if compare_range:
+        prior_rows = _query(group_by, *compare_range, *filters)
+        prior_totals = _totals(prior_rows)
+        result["comparison"] = {
+            "start_date": compare_start_date,
+            "end_date": compare_end_date,
+            "totals": prior_totals,
+            "change": _change(totals, prior_totals),
+        }
+        # Month and quarter labels differ between periods, so only totals compare there.
+        if group_by not in ("none", "month", "quarter"):
+            prior_by_key = {r[group_by]: r for r in prior_rows}
+            for r in rows:
+                prior = prior_by_key.get(r[group_by])
+                r["change"] = _change(r, prior) if prior else None
+                r["prior"] = {k: v for k, v in prior.items() if k != group_by} if prior else None
+
+    return _clean(result)
 
 
 root_agent = Agent(
@@ -229,11 +311,15 @@ Rules:
    individual deals, forecasts, editing data), say it is not in the approved
    tool and suggest the closest thing you can answer.
 4. For comparisons (for example this quarter versus the same quarter last
-   year), call get_revenue once per period and compute the change yourself.
+   year), call get_revenue once with compare_start_date and compare_end_date
+   set to the comparison period. Use the totals, comparison, and per-row
+   change fields it returns.
 5. Answer in this format: a one sentence headline answer, then a short
    table, then one line stating the exact date range and filters used.
    Format money as $1,234,567 (no cents for totals over $10,000).
-6. Never invent numbers. Every figure must come from a tool result.
+6. Never invent numbers and never do arithmetic. Every figure, including
+   totals, differences, and percentages, must be copied from a tool result.
+   If a figure you need is not in a result, say so instead of computing it.
 """,
     tools=[get_reporting_calendar, get_revenue],
 )
