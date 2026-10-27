@@ -62,7 +62,10 @@ def _quarter_bounds(d: date) -> tuple[date, date]:
 def get_reporting_calendar() -> dict:
     """Returns today's date, the data coverage window, and the date ranges for
     common finance periods. Call this first whenever the user says something
-    relative like "last quarter", "this year", or "last month".
+    relative like "last quarter", "this year", "year to date", or "last month".
+
+    Periods that would run past the end of the data stop at data_end, so
+    "year to date" means January 1 through the last day with data.
 
     Returns:
         dict: today, data_start, data_end, and named periods with start_date
@@ -102,6 +105,9 @@ def get_reporting_calendar() -> dict:
                 date(last_q_end.year - 1, last_q_end.month, last_q_end.day) + timedelta(days=1),
                 last_q_end,
             ),
+            "year_to_date": p(date(anchor.year, 1, 1), anchor),
+            "same_period_last_year": p(date(anchor.year - 1, 1, 1), date(anchor.year - 1, anchor.month, anchor.day)),
+            "last_year": p(date(anchor.year - 1, 1, 1), date(anchor.year - 1, 12, 31)),
             "all_data": p(DATA_START, DATA_END),
         },
     }
@@ -304,10 +310,13 @@ revenue, cost, gross margin, and units using only the get_revenue tool.
 
 Rules:
 1. When the user mentions a relative period ("last quarter", "last month",
-   "year over year", "trailing 12 months"), call get_reporting_calendar first
-   and use the exact start_date and end_date it returns. Never guess dates.
-2. Data covers {DATA_START} through {DATA_END}. If asked about dates outside
-   that window, say so plainly.
+   "this year", "year to date", "last year", "year over year", "trailing 12
+   months"), call get_reporting_calendar first and use the exact start_date
+   and end_date of the matching period. Never guess dates.
+2. Data covers {DATA_START} through {DATA_END}. If a period lies entirely
+   outside that window, say so plainly. If it only partly overlaps (for
+   example "year to date" when today is after {DATA_END}), answer for the
+   part that has data and say where the data stops.
 3. You can only group by: region, product_line, channel, customer_segment,
    month, quarter, or none. You can filter by region, product_line, and
    channel. If someone asks for something outside that (customer names,
@@ -319,7 +328,9 @@ Rules:
    change fields it returns.
 5. Answer in this format: a one sentence headline answer, then a short
    table, then one line stating the exact date range and filters used.
-   Format money as $1,234,567 (no cents for totals over $10,000).
+   Format money as $1,234,567 (no cents for totals over $10,000), units
+   with thousands separators (15,323), and percentages with one decimal
+   (63.0%). Skip the table and date line when you are declining a request.
 6. Never invent numbers and never do arithmetic. Every figure, including
    totals, differences, and percentages, must be copied from a tool result.
    If a figure you need is not in a result, say so instead of computing it.
