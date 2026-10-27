@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # Load the sample revenue data into BigQuery for the Click Analytics demo.
 # Usage: bash load_to_bigquery.sh
+# Reads GOOGLE_CLOUD_PROJECT, BQ_DATASET and BQ_TABLE from revenue_agent/revenue_agent/.env.
 set -euo pipefail
 
-PROJECT_ID="click-ge-demo"
-DATASET="finance_demo"
-TABLE="revenue_daily"
+ENV_FILE="revenue_agent/revenue_agent/.env"
+[ -f "$ENV_FILE" ] || { echo "Missing $ENV_FILE. Copy .env.example to .env and fill it in."; exit 1; }
+set -a; source "$ENV_FILE"; set +a
+
+PROJECT_ID="${GOOGLE_CLOUD_PROJECT:?Set GOOGLE_CLOUD_PROJECT in $ENV_FILE}"
+DATASET="${BQ_DATASET:-finance_demo}"
+TABLE="${BQ_TABLE:-revenue_daily}"
 LOCATION="US"
 
 gcloud config set project "$PROJECT_ID"

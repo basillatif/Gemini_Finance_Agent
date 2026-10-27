@@ -1,2 +1,5 @@
+# Direct dependencies, pinned to the versions verified on Python 3.12.15.
+# The full transitive lock is in requirements-lock.txt at the repo root.
 google-adk==2.11.0
-google-cloud-bigquery
+google-cloud-bigquery==3.46.2
+google-genai==2.33.0

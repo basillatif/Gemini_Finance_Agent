@@ -13,7 +13,10 @@ from decimal import Decimal
 from google.adk.agents import Agent
 from google.cloud import bigquery
 
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "click-ge-demo")
+# Config comes from the environment (.env locally, deployment settings in the cloud).
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
+if not PROJECT_ID:
+    raise RuntimeError("Set GOOGLE_CLOUD_PROJECT (see revenue_agent/.env.example).")
 DATASET = os.getenv("BQ_DATASET", "finance_demo")
 TABLE = os.getenv("BQ_TABLE", "revenue_daily")
 MODEL = os.getenv("MODEL", "gemini-2.5-flash")

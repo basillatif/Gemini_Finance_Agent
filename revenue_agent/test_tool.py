@@ -8,6 +8,10 @@ Expected for last quarter by region:
 """
 import json
 
+from dotenv import load_dotenv
+
+load_dotenv("revenue_agent/.env")  # adk run/web do this for you; a plain script must do it itself
+
 from revenue_agent.agent import get_reporting_calendar, get_revenue
 
 cal = get_reporting_calendar()

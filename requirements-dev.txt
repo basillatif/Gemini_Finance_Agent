@@ -1,0 +1,3 @@
+# Dev/eval tooling (not deployed). Install with: pip install -r requirements-dev.txt
+-r revenue_agent/revenue_agent/requirements.txt
+google-adk[eval]==2.11.0
