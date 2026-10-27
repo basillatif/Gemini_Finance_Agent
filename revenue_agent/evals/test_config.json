@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "tool_args_match": 1.0,
+    "required_figures": 1.0,
+    "grounded_figures": 1.0,
+    "rubric_based_final_response_quality_v1": {
+      "threshold": 0.8,
+      "judge_model_options": {"judge_model": "gemini-2.5-flash", "num_samples": 3},
+      "rubrics": []
+    }
+  },
+  "custom_metrics": {
+    "tool_args_match": {
+      "code_config": {"name": "evals.metrics.tool_args_match"},
+      "description": "Expected tool calls happened in order with the expected arguments."
+    },
+    "required_figures": {
+      "code_config": {"name": "evals.metrics.required_figures"},
+      "description": "Every figure in the answer key appears in the response."
+    },
+    "grounded_figures": {
+      "code_config": {"name": "evals.metrics.grounded_figures"},
+      "description": "Every figure in the response traces back to a tool result."
+    }
+  }
+}

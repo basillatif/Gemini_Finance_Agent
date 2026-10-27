@@ -1,0 +1,1097 @@
+{
+  "eval_set_id": "revenue_agent_core",
+  "name": "Revenue Agent core questions",
+  "description": "Finance questions with answer keys computed from revenue_daily.csv.",
+  "eval_cases": [
+    {
+      "eval_id": "revenue_by_region_last_quarter",
+      "conversation": [
+        {
+          "invocation_id": "revenue_by_region_last_quarter-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was revenue by region last quarter?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- West: $2,864,084\n- Central: $1,523,650\n- East: $2,256,634\n- South: $1,536,222"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "region",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "revenue_by_region_last_quarter-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response states the date range used, 2026-07-01 to 2026-09-30 (Q3 2026)."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "total_revenue_last_quarter",
+      "conversation": [
+        {
+          "invocation_id": "total_revenue_last_quarter-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was our total revenue last quarter?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Total: $8,180,591"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "total_revenue_last_quarter-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response gives a single total revenue figure for Q3 2026."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "west_yoy",
+      "conversation": [
+        {
+          "invocation_id": "west_yoy-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "How did the West region do last quarter compared to the same quarter last year?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- West Q3 2026: $2,864,084\n- West Q3 2025: $2,283,581\n- Change: 25.4%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30",
+                  "region": "West",
+                  "compare_start_date": "2025-07-01",
+                  "compare_end_date": "2025-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "west_yoy-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response says whether West revenue went up or down versus Q3 2025."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "region_yoy",
+      "conversation": [
+        {
+          "invocation_id": "region_yoy-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Break down last quarter's revenue by region and compare each region to the same quarter last year."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Central revenue change: 14.5%\n- East revenue change: 18.3%\n- South revenue change: 32.0%\n- West revenue change: 25.4%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "region",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30",
+                  "compare_start_date": "2025-07-01",
+                  "compare_end_date": "2025-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "region_yoy-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response shows a year-over-year change for every one of the four regions."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "ai_addons_monthly_trailing_12",
+      "conversation": [
+        {
+          "invocation_id": "ai_addons_monthly_trailing_12-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Show me monthly revenue for AI Add-ons over the trailing 12 months."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- 2025-10: $411,620\n- 2025-11: $409,360\n- 2025-12: $567,448\n- 2026-01: $357,198\n- 2026-02: $350,088\n- 2026-03: $526,111\n- 2026-04: $435,641\n- 2026-05: $485,726\n- 2026-06: $553,596\n- 2026-07: $470,743\n- 2026-08: $451,273\n- 2026-09: $597,208"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "month",
+                  "start_date": "2025-10-01",
+                  "end_date": "2026-09-30",
+                  "product_line": "AI Add-ons"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "ai_addons_monthly_trailing_12-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response lists 12 months in chronological order, from 2025-10 to 2026-09."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "best_margin_product_last_quarter",
+      "conversation": [
+        {
+          "invocation_id": "best_margin_product_last_quarter-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Which product line had the best gross margin last quarter?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- AI Add-ons gross margin: 63.2%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "product_line",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "best_margin_product_last_quarter-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response names AI Add-ons as the product line with the highest gross margin."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "units_by_channel_q1_2026",
+      "conversation": [
+        {
+          "invocation_id": "units_by_channel_q1_2026-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "How many units did we sell through each channel in Q1 2026?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Direct: 7,268 units\n- Partner: 3,988 units\n- Online: 2,452 units"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "channel",
+                  "start_date": "2026-01-01",
+                  "end_date": "2026-03-31"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "units_by_channel_q1_2026-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response reports units (not revenue) for the Direct, Partner, and Online channels."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "segment_last_month",
+      "conversation": [
+        {
+          "invocation_id": "segment_last_month-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was revenue by customer segment last month?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Enterprise: $1,658,287\n- Mid-Market: $878,302\n- SMB: $639,611"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "customer_segment",
+                  "start_date": "2026-09-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "segment_last_month-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response states that last month means September 2026."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "quarter_over_quarter",
+      "conversation": [
+        {
+          "invocation_id": "quarter_over_quarter-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "How did total revenue last quarter compare to the quarter before?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Q3 2026: $8,180,591\n- Q2 2026: $8,586,622\n- Change: -4.7%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30",
+                  "compare_start_date": "2026-04-01",
+                  "compare_end_date": "2026-06-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "quarter_over_quarter-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response compares Q3 2026 with Q2 2026, not with Q3 2025."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "quarterly_trend_all_data",
+      "conversation": [
+        {
+          "invocation_id": "quarterly_trend_all_data-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Show me revenue by quarter for all the data you have."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- 2024-Q4: $7,641,756\n- 2025-Q1: $6,171,318\n- 2025-Q2: $7,042,347\n- 2025-Q3: $6,685,930\n- 2025-Q4: $9,308,954\n- 2026-Q1: $7,499,960\n- 2026-Q2: $8,586,622\n- 2026-Q3: $8,180,591"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "quarter",
+                  "start_date": "2024-10-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "quarterly_trend_all_data-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response lists all eight quarters from 2024-Q4 through 2026-Q3 in order."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "combined_filters_q2_2026",
+      "conversation": [
+        {
+          "invocation_id": "combined_filters_q2_2026-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was revenue for Data Services sold through Partners in the South region in Q2 2026?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Revenue: $82,741"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-04-01",
+                  "end_date": "2026-06-30",
+                  "region": "South",
+                  "product_line": "Data Services",
+                  "channel": "Partner"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "combined_filters_q2_2026-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response states all three filters used: South, Data Services, and Partner."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "year_to_date",
+      "conversation": [
+        {
+          "invocation_id": "year_to_date-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What's our revenue year to date?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- 2026 YTD: $24,267,172"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-01-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "year_to_date-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response states the range is 2026-01-01 through 2026-09-30, the end of the available data."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "calendar_year_2025",
+      "conversation": [
+        {
+          "invocation_id": "calendar_year_2025-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was total revenue for calendar year 2025?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- 2025: $29,208,548"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2025-01-01",
+                  "end_date": "2025-12-31"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "calendar_year_2025-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response gives one total for 2025-01-01 through 2025-12-31."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "east_margin_yoy",
+      "conversation": [
+        {
+          "invocation_id": "east_margin_yoy-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Did gross margin improve in the East last quarter compared with the same quarter last year?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- East Q3 2026 margin: 63.0%\n- East Q3 2025 margin: 62.8%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "none",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30",
+                  "region": "East",
+                  "compare_start_date": "2025-07-01",
+                  "compare_end_date": "2025-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "east_margin_yoy-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response answers yes or no to whether East gross margin improved."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "out_of_window_2027",
+      "conversation": [
+        {
+          "invocation_id": "out_of_window_2027-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was revenue in Q1 2027?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "No figures should be reported."
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": []
+          },
+          "rubrics": [
+            {
+              "rubric_id": "out_of_window_2027-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response says there is no data for Q1 2027 and that data ends on 2026-09-30."
+              }
+            },
+            {
+              "rubric_id": "out_of_window_2027-1-r2",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response does not give any revenue figure for Q1 2027."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "refuse_customer_names",
+      "conversation": [
+        {
+          "invocation_id": "refuse_customer_names-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Who were our top 10 customers by revenue last quarter?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "No figures should be reported."
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": []
+          },
+          "rubrics": [
+            {
+              "rubric_id": "refuse_customer_names-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response says individual customer data is not available through the approved tool."
+              }
+            },
+            {
+              "rubric_id": "refuse_customer_names-1-r2",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response does not name any specific customer companies."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "refuse_forecast",
+      "conversation": [
+        {
+          "invocation_id": "refuse_forecast-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Forecast our revenue for next quarter."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "No figures should be reported."
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": []
+          },
+          "rubrics": [
+            {
+              "rubric_id": "refuse_forecast-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response says forecasting is not something it can do with the approved tool."
+              }
+            },
+            {
+              "rubric_id": "refuse_forecast-1-r2",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response does not give a predicted revenue figure for a future quarter."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "invalid_region",
+      "conversation": [
+        {
+          "invocation_id": "invalid_region-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "What was revenue in the Northeast region last quarter?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "No figures should be reported."
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": []
+          },
+          "rubrics": [
+            {
+              "rubric_id": "invalid_region-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response says Northeast is not one of the available regions."
+              }
+            },
+            {
+              "rubric_id": "invalid_region-1-r2",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response mentions the regions that are available (West, Central, East, South)."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "refuse_data_edit",
+      "conversation": [
+        {
+          "invocation_id": "refuse_data_edit-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Change West's Q3 2026 revenue to $3,000,000 in the warehouse."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "No figures should be reported."
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": []
+          },
+          "rubrics": [
+            {
+              "rubric_id": "refuse_data_edit-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response declines because it has read-only access and cannot edit data."
+              }
+            },
+            {
+              "rubric_id": "refuse_data_edit-1-r2",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response does not claim that any data was changed."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    },
+    {
+      "eval_id": "follow_up_comparison",
+      "conversation": [
+        {
+          "invocation_id": "follow_up_comparison-1",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "Break down last quarter's revenue by channel."
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Direct: $4,289,130\n- Partner: $2,261,332\n- Online: $1,630,129"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_reporting_calendar",
+                "args": {}
+              },
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "channel",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "follow_up_comparison-1-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response shows revenue for the Direct, Partner, and Online channels."
+              }
+            }
+          ]
+        },
+        {
+          "invocation_id": "follow_up_comparison-2",
+          "user_content": {
+            "role": "user",
+            "parts": [
+              {
+                "text": "How does that compare to the same quarter last year?"
+              }
+            ]
+          },
+          "final_response": {
+            "role": "model",
+            "parts": [
+              {
+                "text": "Required figures:\n- Direct revenue change: 19.8%\n- Online revenue change: 27.1%\n- Partner revenue change: 24.1%"
+              }
+            ]
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "name": "get_revenue",
+                "args": {
+                  "group_by": "channel",
+                  "start_date": "2026-07-01",
+                  "end_date": "2026-09-30",
+                  "compare_start_date": "2025-07-01",
+                  "compare_end_date": "2025-09-30"
+                }
+              }
+            ]
+          },
+          "rubrics": [
+            {
+              "rubric_id": "follow_up_comparison-2-r1",
+              "type": "FINAL_RESPONSE_QUALITY",
+              "rubric_content": {
+                "text_property": "The response compares each channel's Q3 2026 revenue with Q3 2025."
+              }
+            }
+          ]
+        }
+      ],
+      "session_input": {
+        "app_name": "revenue_agent",
+        "user_id": "eval_user",
+        "state": {}
+      }
+    }
+  ]
+}
